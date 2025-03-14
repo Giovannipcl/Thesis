@@ -15,7 +15,8 @@ library("interp")
 #########################
 
 bctm_tensor_multi = function(A,Al,X,K1,K2,K3,q,index){
-
+  
+  
   n = length(y)
   Dp1 = diag(10^(-6),ncol(K1),ncol(K1))
   Dp2 = diag(10^(-6),ncol(K2),ncol(K2))
@@ -98,10 +99,7 @@ bctm_tensor_multi = function(A,Al,X,K1,K2,K3,q,index){
     return(-(Hess - K(sigma,K1,K2)))
   }
   
-  
 
-  
- 
   
   calc_lpost32 = function(sigma,xin) {
     x0 = calc_x02(sigma,xin,Matrix(A,sparse = TRUE),Matrix(Al,sparse=TRUE),index,K1,K2,K3,X)
@@ -148,7 +146,7 @@ bctm_tensor_multi = function(A,Al,X,K1,K2,K3,q,index){
     pila = vector()
     for(j in 1:length(xis)){
       mul = mu[-index] + H[-index,index]*(1/H[index,index])*(xis[j] -mu[index])
-      pila[j] = (((calc_ljoint(A,append(mul,xis[j],index-1),(sigmanovo),index,K1,K2))))
+      pila[j] = (((calc_ljoint(A,append(mul,xis[j],index-1),(sigmanovo),Al,K1,K2))))
     }
     return(list(pila = pila,xis = xis))
   }
@@ -383,7 +381,7 @@ bctm_vcm = function(A,Al,X,K1,K2,K3,q,index){
   }
   
 
-xin = calc_x02(c(1,1),rep(1,length(index)), Matrix(A,sparse = TRUE),Matrix(index,sparse = TRUE),index, K1,K2,K3,X)
+xin = calc_x02(c(1,1),rep(1,length(index)), Matrix(A,sparse = TRUE),Matrix(Al,sparse = TRUE),index, K1,K2,K3,X)
   
 
 
@@ -395,7 +393,7 @@ xin = calc_x02(c(1,1),rep(1,length(index)), Matrix(A,sparse = TRUE),Matrix(index
   
   sigmamod = d$par
   sd_sigma = d$hessian
-  mu_ini = calc_x02(sigmamod,xin, Matrix(A,sparse = TRUE),Matrix(index,sparse = TRUE),index, K1,K2,K3,X)
+  mu_ini = calc_x02(sigmamod,xin, Matrix(A,sparse = TRUE),Matrix(Al,sparse = TRUE),index, K1,K2,K3,X)
   
   H = chol2inv(chol(calc_neg_hess_ff42(mu_ini,sigmamod)))
   sigma_ini = sqrt(diag(H))
@@ -420,7 +418,7 @@ xin = calc_x02(c(1,1),rep(1,length(index)), Matrix(A,sparse = TRUE),Matrix(index
     pila = vector()
     for(j in 1:length(xis)){
       mul = mu[-index] + H[-index,index]*(1/H[index,index])*(xis[j] -mu[index])
-      pila[j] = (((calc_ljoint(A,append(mul,xis[j],index-1),(sigmanovo),index,K1,K2))))
+      pila[j] = (((calc_ljoint(A,append(mul,xis[j],index-1),(sigmanovo),Al,K1,K2))))
     }
     return(list(pila = pila,xis = xis))
   }
@@ -689,7 +687,7 @@ bctm_vcm_re2 = function(A,Al,X,K1,K2,K3,q,index){
   
   
   
-  xin = calc_x02(c(0,0), rep(2,length(index)),Matrix(A, sparse = TRUE),Matrix(index, sparse = TRUE),index,K1,K2,K3,X)
+  xin = calc_x02(c(0,0), rep(2,length(index)),Matrix(A, sparse = TRUE),Matrix(Al, sparse = TRUE),index,K1,K2,K3,X)
   
 
   d = optim(par = c(1,1), fn = calc_lpost32,xin = xin, method = "L-BFGS-B",
@@ -731,7 +729,7 @@ bctm_vcm_re2 = function(A,Al,X,K1,K2,K3,q,index){
     pila = vector()
     for(j in 1:length(xis)){
       mul = mu[-index] + H[-index,index]*(1/H[index,index])*(xis[j] -mu[index])
-      pila[j] = (((calc_ljoint(A,append(mul,xis[j],index-1),(sigmanovo),index,K1,K2,K3))))
+      pila[j] = (((calc_ljoint(A,append(mul,xis[j],index-1),(sigmanovo),Al,K1,K2,K3))))
     }
     return(list(pila = pila,xis = xis))
   }
@@ -983,7 +981,7 @@ bctm_vcm_re3 = function(A,Al,X,K1,K2,K3,q,index){
  
 
   
-  xin = calc_x02(c(0,0), rep(2,length(index)),Matrix(A, sparse = TRUE),Matrix(index, sparse = TRUE),index,K1,K2,K3,X)
+  xin = calc_x02(c(0,0), rep(2,length(index)),Matrix(A, sparse = TRUE),Matrix(Al, sparse = TRUE),index,K1,K2,K3,X)
   
 
 
@@ -1027,7 +1025,7 @@ bctm_vcm_re3 = function(A,Al,X,K1,K2,K3,q,index){
     pila = vector()
     for(j in 1:length(xis)){
       mul = mu[-index] + H[-index,index]*(1/H[index,index])*(xis[j] -mu[index])
-      pila[j] = (((calc_ljoint(A,append(mul,xis[j],index-1),(sigmanovo),index,K1,K2,K3))))
+      pila[j] = (((calc_ljoint(A,append(mul,xis[j],index-1),(sigmanovo),Al,K1,K2,K3))))
     }
     return(list(pila = pila,xis = xis))
   }
