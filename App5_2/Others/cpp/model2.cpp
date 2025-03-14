@@ -296,9 +296,11 @@ arma::vec calc_x02(const arma::vec& alpha, arma::vec x0, const arma::sp_mat& A, 
     arma::sp_mat H = -calc_neg_hess_ff4(x, alpha, A, Al, K1,K2,K3,X, index); 
     
     // Usando sp_solve para resolver o sistema linear esparso
-    x = x - arma::spsolve(H, g1);
+    //x = x - arma::spsolve(H, g1);
+      
     // Update x
-    //x = x - arma::solve(H, g1);
+      arma::mat H_dense = arma::mat(H); 
+      x = x - arma::solve(H, g1);
     
     // Check for convergence
     if (arma::mean(arma::square(x - x0)) < tol) {

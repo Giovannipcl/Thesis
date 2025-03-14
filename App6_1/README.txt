@@ -48,7 +48,7 @@ install.packages("splines2")
 install.packages("Matrix")
 install.packages("optimParallel")    #Just for MacOS
 install.packages("parallel")         
-install.packages("MASS"
+install.packages("MASS")
 install.packages("pak")
 pak::pak("tidyverse/purrr")
 install.packages("mgcv")

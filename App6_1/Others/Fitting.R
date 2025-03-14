@@ -5,7 +5,6 @@ library(dplyr)
 library(Matrix)
 library(splines)
 library(splines2)
-library(optimParallel)
 library(MASS)
 library(mgcv)
 library(scam)
@@ -18,7 +17,6 @@ library("fastmatrix")
 library("DescTools")
 library(plyr)
 library("LaplacesDemon")
-library("optimParallel")
 library("pracma")
 library(expm)
 library(fBasics)
@@ -390,9 +388,8 @@ sum(datapred$V1 < datapred$qs & datapred$V1 > datapred$qi)/length(datapred$V1)
 
 i= 10
 #Maranhão
-head(data1)
 data1 = datafinal[(datafinal$id == i) & (datafinal$sexo == "Male"),]
-data1$MHDI
+
 print(ggplot(data = data1, aes(x = time, y = qm))+
         facet_wrap(~Age )+ 
         geom_line(col= "black")+ labs(x = "Time",cex=1.2)+ 
@@ -406,11 +403,10 @@ print(ggplot(data = data1, aes(x = time, y = qm))+
   geom_ribbon(aes(ymin = qi, ymax = qs),alpha = 0.2)
 
 
-head(data1)
+
 #Rio de Janeiro
 i = 21
 data1 = datafinal[(datafinal$id == i) & (datafinal$sexo == "Male"),]
-data1$MHDI
 print(ggplot(data = data1, aes(x = time, y = qm))+
         facet_wrap(~Age )+ 
         geom_line(col= "black")+ labs(x = "Time",cex=1.2)+ 
@@ -426,8 +422,7 @@ print(ggplot(data = data1, aes(x = time, y = qm))+
 ################################################################################
 ############ Producing the graphs
 
-setwd("~/Documents/Backup2/Giovanni 5/RedeIME/giovannipcl/Desktop/dados_artigo/dados2")
-estados = read.csv("DataFinal_2.csv", header=TRUE)
+estados = read.csv("DataFinal2.csv", header=TRUE, sep = ";")
 
 estados$Estado = replace(estados$Estado,which(estados$Estado ==  "Cear�"),"Ceará")
 estados$Estado = replace(estados$Estado,which(estados$Estado ==  "Amap�"),"Amapá")
