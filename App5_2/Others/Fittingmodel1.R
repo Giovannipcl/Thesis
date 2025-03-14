@@ -1,5 +1,6 @@
 ################################3
 ### Loading the packages
+library(tidyverse)
 library(dplyr)
 library(Matrix)
 library(splines)
@@ -174,7 +175,7 @@ for(j in 1:length(pontos[,1])){
 marginals2 = lapply(1:length(maximos),function(ii) marginal(ii,post_multi, maximos = maximos,sigma_ini = sigma_ini,lista = lista,lpost = lpost,weight = weight))
 
 ### Simulating values from these marginals
-Beta = mclapply(seq(1,length(maximos),1),MH,post_multi,maximos,sigma_ini,lista,lpost,weight,mc.cores =6 )
+Beta = mclapply(seq(1,length(maximos),1),MH,post_multi,maximos,sigma_ini,lista,lpost,weight,mc.cores =1 )
 Beta = matrix(unlist(Beta),ncol = ncol(A),nrow = length(Beta[[1]]))
 
 gamma_f = function(beta,index){

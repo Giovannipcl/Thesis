@@ -104,21 +104,21 @@ bctm_tensor_multi = function(A,Al,X,K1,K2,K3,q,index){
  
   
   calc_lpost32 = function(sigma,xin) {
-    x0 = calc_x02(sigma,xin,Matrix(A,sparse = TRUE),Matrix(Al,sparse=TRUE),indext,K1,K2,K3,X)
-    H = calc_neg_hess_ff422(x0,sigma,Matrix(A,sparse = TRUE),Matrix(Al,sparse=TRUE),K1,K2,K3,X,indext)
+    x0 = calc_x02(sigma,xin,Matrix(A,sparse = TRUE),Matrix(Al,sparse=TRUE),index,K1,K2,K3,X)
+    H = calc_neg_hess_ff422(x0,sigma,Matrix(A,sparse = TRUE),Matrix(Al,sparse=TRUE),K1,K2,K3,X,index)
     chol_h = chol(H)
     calc_ljoint(A,x0, sigma, Al,K1,K2) + (n/2)*log(2*pi)- sum(log(diag(chol_h)))
   }
   
 
-  system.time({xin = calc_x02(c(1,1),rep(1,length(indext)),Matrix(A,sparse = TRUE),Matrix(Al,sparse=TRUE),indext,K1,K2,K3,X)})
+  system.time({xin = calc_x02(c(1,1),rep(1,length(index)),Matrix(A,sparse = TRUE),Matrix(Al,sparse=TRUE),index,K1,K2,K3,X)})
   
 
   d = optim(par = c(1,1), fn = calc_lpost32,xin = xin, method = "L-BFGS-B",
                                   control=list(fnscale=-1,maxit = 5000,trace = TRUE),hessian = FALSE)
   
   sigmamod = d$par
-  mu_ini = calc_x02(sigmamod,xin,Matrix(A,sparse = TRUE),Matrix(Al,sparse=TRUE),indext,K1,K2,K3,X)
+  mu_ini = calc_x02(sigmamod,xin,Matrix(A,sparse = TRUE),Matrix(Al,sparse=TRUE),index,K1,K2,K3,X)
   H = chol2inv(chol(calc_neg_hess_ff4(mu_ini,sigmamod)))
   sigma_ini = sqrt(diag(H))
   
@@ -128,7 +128,7 @@ bctm_tensor_multi = function(A,Al,X,K1,K2,K3,q,index){
 
 
   xis_c2 = function(index,max){
-    if(index %in% which(indext == FALSE)){
+    if(index %in% which(index == FALSE)){
       return(seq(max[index]-2.5*sqrt(sigma_ini[index]),max[index]+2.5*sqrt(sigma_ini[index]),length = 31))
     }else{
       return(seq(max[index]-2.5*sqrt(sigma_ini[index]),max[index]+2.5*sqrt(sigma_ini[index]),length = 31))
@@ -148,7 +148,7 @@ bctm_tensor_multi = function(A,Al,X,K1,K2,K3,q,index){
     pila = vector()
     for(j in 1:length(xis)){
       mul = mu[-index] + H[-index,index]*(1/H[index,index])*(xis[j] -mu[index])
-      pila[j] = (((calc_ljoint(A,append(mul,xis[j],index-1),(sigmanovo),Ad,K1,K2))))
+      pila[j] = (((calc_ljoint(A,append(mul,xis[j],index-1),(sigmanovo),index,K1,K2))))
     }
     return(list(pila = pila,xis = xis))
   }
@@ -177,7 +177,7 @@ bctm_tensor_multi = function(A,Al,X,K1,K2,K3,q,index){
   
   post_x2 =  lapply(lista, function(alpha_) {
 
-    mode_ = calc_x02(alpha_,xin,Matrix(A,sparse = TRUE),Matrix(Al,sparse = TRUE),indext,K1,K2,K3,X)
+    mode_ = calc_x02(alpha_,xin,Matrix(A,sparse = TRUE),Matrix(Al,sparse = TRUE),index,K1,K2,K3,X)
     H1 = calc_neg_hess_ff4(mode_,alpha_)
     chol_H_ = chol(H1)
     H = chol2inv(chol_H_)
@@ -185,7 +185,7 @@ bctm_tensor_multi = function(A,Al,X,K1,K2,K3,q,index){
       Append(matrix(kronecker.prod(xis_c2(ii,maximos) -mode_[ii],H[-ii,ii]*(1/H[ii,ii])),ncol = 31,nrow = ncol(A) - 1) + mode_[-ii]
              ,xis_c2(ii,maximos),after = ii - 1,rows = TRUE)})
 
-    pila = apply_to_list_parallel(ta,A,alpha_,Al,K1,K2,K3,X,indext)
+    pila = apply_to_list_parallel(ta,A,alpha_,Al,K1,K2,K3,X,index)
     posti = lapply(seq(1:ncol(A)),normal,pila = pila)
 
     return(list(
@@ -361,7 +361,7 @@ bctm_vcm = function(A,Al,X,K1,K2,K3,q,index){
     }
     
 
-    x0 = calc_x02(sigma,rep(1,length(index)),Matrix(A, sparse = TRUE),Matrix(Al, sparse = TRUE),indext,K1,K2,K3,X)
+    x0 = calc_x02(sigma,rep(1,length(index)),Matrix(A, sparse = TRUE),Matrix(Al, sparse = TRUE),index,K1,K2,K3,X)
     
     
 
@@ -383,7 +383,7 @@ bctm_vcm = function(A,Al,X,K1,K2,K3,q,index){
   }
   
 
-xin = calc_x02(c(1,1),rep(1,length(index)), Matrix(A,sparse = TRUE),Matrix(Ad,sparse = TRUE),indext, K1,K2,K3,X)
+xin = calc_x02(c(1,1),rep(1,length(index)), Matrix(A,sparse = TRUE),Matrix(index,sparse = TRUE),index, K1,K2,K3,X)
   
 
 
@@ -395,7 +395,7 @@ xin = calc_x02(c(1,1),rep(1,length(index)), Matrix(A,sparse = TRUE),Matrix(Ad,sp
   
   sigmamod = d$par
   sd_sigma = d$hessian
-  mu_ini = calc_x02(sigmamod,xin, Matrix(A,sparse = TRUE),Matrix(Ad,sparse = TRUE),index, K1,K2,K3,X)
+  mu_ini = calc_x02(sigmamod,xin, Matrix(A,sparse = TRUE),Matrix(index,sparse = TRUE),index, K1,K2,K3,X)
   
   H = chol2inv(chol(calc_neg_hess_ff42(mu_ini,sigmamod)))
   sigma_ini = sqrt(diag(H))
@@ -406,7 +406,7 @@ xin = calc_x02(c(1,1),rep(1,length(index)), Matrix(A,sparse = TRUE),Matrix(Ad,sp
   
 
   xis_c2 = function(index,max){
-    if(index %in% which(indext == FALSE)){
+    if(index %in% which(index == FALSE)){
       return(seq(max[index]-2.5*sqrt(sigma_ini[index]),max[index]+2.5*sqrt(sigma_ini[index]),length = 41))
     }else{
       return(seq(max[index]-2.5*sqrt(sigma_ini[index]),max[index]+2.5*sqrt(sigma_ini[index]),length = 41))
@@ -420,7 +420,7 @@ xin = calc_x02(c(1,1),rep(1,length(index)), Matrix(A,sparse = TRUE),Matrix(Ad,sp
     pila = vector()
     for(j in 1:length(xis)){
       mul = mu[-index] + H[-index,index]*(1/H[index,index])*(xis[j] -mu[index])
-      pila[j] = (((calc_ljoint(A,append(mul,xis[j],index-1),(sigmanovo),Ad,K1,K2))))
+      pila[j] = (((calc_ljoint(A,append(mul,xis[j],index-1),(sigmanovo),index,K1,K2))))
     }
     return(list(pila = pila,xis = xis))
   }
@@ -430,7 +430,7 @@ xin = calc_x02(c(1,1),rep(1,length(index)), Matrix(A,sparse = TRUE),Matrix(Ad,sp
     pila = vector()
     for(j in 1:length(xis)){
       mul = mu[-index] + H[-index,index]*(1/H[index,index])*(xis[j] -mu[index])
-      pila[j] = (((calc_ljoint(A,append(mul,xis[j],index-1),(sigmanovo),Ad,K1,K2))))
+      pila[j] = (((calc_ljoint(A,append(mul,xis[j],index-1),(sigmanovo),index,K1,K2))))
     }
     pila_norm = exp(pila - mean(pila))/(calc_Z(xis,pila - mean(pila)))
     return(pila_norm)
@@ -478,7 +478,7 @@ xin = calc_x02(c(1,1),rep(1,length(index)), Matrix(A,sparse = TRUE),Matrix(Ad,sp
   lista =  as.list(as.data.frame(t(xy.coarse)))
   post_x2 =  lapply(lista, function(alpha_) {
 
-    mode_ = calc_x02(alpha_,xin,Matrix(A,sparse = T),Matrix(Al,sparse = T),indext,K1,K2,K3,X)
+    mode_ = calc_x02(alpha_,xin,Matrix(A,sparse = T),Matrix(Al,sparse = T),index,K1,K2,K3,X)
     H1 = calc_neg_hess_ff42(mode_,alpha_)
     chol_H_ = chol(H1)
     H = chol2inv(chol_H_)
@@ -486,7 +486,7 @@ xin = calc_x02(c(1,1),rep(1,length(index)), Matrix(A,sparse = TRUE),Matrix(Ad,sp
       Append(matrix(kronecker.prod(xis_c2(ii,maximos) -mode_[ii],H[-ii,ii]*(1/H[ii,ii])),ncol = 41,nrow = ncol(A) - 1) + mode_[-ii]
              ,xis_c2(ii,maximos),after = ii - 1,rows = TRUE)})
 
-    pila = apply_to_list_parallel(ta,A,alpha_,Al,K1,K2,K3,X,indext)
+    pila = apply_to_list_parallel(ta,A,alpha_,Al,K1,K2,K3,X,index)
     posti = lapply(seq(1:ncol(A)),normal,pila = pila)
 
     return(list(
@@ -521,7 +521,7 @@ bctm_vcm_re2 = function(A,Al,X,K1,K2,K3,q,index){
   Dp1 = diag(10^(-6),ncol(K1),ncol(K1))
   Dp2 = diag(10^(-6),ncol(K2),ncol(K2))
   Dp3 = diag(10^(-6),ncol(K3),ncol(K3))
-  index = indext
+  index = index
   
   Cbeta = function(beta,index){
     cbetat = rep(1,length = length(index))
@@ -665,7 +665,7 @@ bctm_vcm_re2 = function(A,Al,X,K1,K2,K3,q,index){
     }
     
     
-    x0 = calc_x02(sigma,xin,Matrix(A, sparse = TRUE),Matrix(Al, sparse = TRUE),indext,K1,K2,K3,X)
+    x0 = calc_x02(sigma,xin,Matrix(A, sparse = TRUE),Matrix(Al, sparse = TRUE),index,K1,K2,K3,X)
     
     
     cache_env$x0 <- x0
@@ -689,7 +689,7 @@ bctm_vcm_re2 = function(A,Al,X,K1,K2,K3,q,index){
   
   
   
-  xin = calc_x02(c(0,0), rep(2,length(indext)),Matrix(A, sparse = TRUE),Matrix(Ad, sparse = TRUE),indext,K1,K2,K3,X)
+  xin = calc_x02(c(0,0), rep(2,length(index)),Matrix(A, sparse = TRUE),Matrix(index, sparse = TRUE),index,K1,K2,K3,X)
   
 
   d = optim(par = c(1,1), fn = calc_lpost32,xin = xin, method = "L-BFGS-B",
@@ -711,7 +711,7 @@ bctm_vcm_re2 = function(A,Al,X,K1,K2,K3,q,index){
   
   
   xis_c2 = function(index,max){
-    if(index %in% which(indext == FALSE)){
+    if(index %in% which(index == FALSE)){
       return(seq(max[index]-2.5*sqrt(sigma_ini[index]),max[index]+2.5*sqrt(sigma_ini[index]),length = 31))
     }else{
       return(seq(max[index]-2.5*sqrt(sigma_ini[index]),max[index]+2.5*sqrt(sigma_ini[index]),length = 31))
@@ -731,7 +731,7 @@ bctm_vcm_re2 = function(A,Al,X,K1,K2,K3,q,index){
     pila = vector()
     for(j in 1:length(xis)){
       mul = mu[-index] + H[-index,index]*(1/H[index,index])*(xis[j] -mu[index])
-      pila[j] = (((calc_ljoint(A,append(mul,xis[j],index-1),(sigmanovo),Ad,K1,K2,K3))))
+      pila[j] = (((calc_ljoint(A,append(mul,xis[j],index-1),(sigmanovo),index,K1,K2,K3))))
     }
     return(list(pila = pila,xis = xis))
   }
@@ -761,7 +761,7 @@ bctm_vcm_re2 = function(A,Al,X,K1,K2,K3,q,index){
   
   post_x2 =  lapply(lista, function(alpha_) {
     
-    mode_ = calc_x02(alpha_,xin,Matrix(A, sparse = TRUE),Matrix(Al, sparse = TRUE),indext,K1,K2,K3,X)
+    mode_ = calc_x02(alpha_,xin,Matrix(A, sparse = TRUE),Matrix(Al, sparse = TRUE),index,K1,K2,K3,X)
     H1 <- calc_neg_hess_ff422(mode_, alpha_, Matrix(A,sparse = TRUE), Matrix(Al,sparse = TRUE),
                               K1,K2,K3,X,index)
     chol_H_ = chol(H1)
@@ -769,7 +769,7 @@ bctm_vcm_re2 = function(A,Al,X,K1,K2,K3,q,index){
     ta = lapply(seq(1:ncol(A)), function (ii){
       Append(matrix(kronecker.prod(xis_c2(ii,maximos) -mode_[ii],H[-ii,ii]*(1/H[ii,ii])),ncol = 31,nrow = ncol(A) - 1) + mode_[-ii]
              ,xis_c2(ii,maximos),after = ii - 1,rows = TRUE)})
-    pila = apply_to_list_parallel(ta,A,alpha_,Al,K1,K2,K3,X,indext)
+    pila = apply_to_list_parallel(ta,A,alpha_,Al,K1,K2,K3,X,index)
     posti = lapply(seq(1:ncol(A)),normal,pila = pila)
     return(list(
       sigma = points_t,
@@ -800,7 +800,7 @@ bctm_vcm_re3 = function(A,Al,X,K1,K2,K3,q,index){
   Dp1 = diag(10^(-6),ncol(K1),ncol(K1))
   Dp2 = diag(10^(-6),ncol(K2),ncol(K2))
   Dp3 = diag(10^(-6),ncol(K3),ncol(K3))
-  index = indext
+  index = index
   
   Cbeta = function(beta,index){
     cbetat = rep(1,length = length(index))
@@ -946,7 +946,7 @@ bctm_vcm_re3 = function(A,Al,X,K1,K2,K3,q,index){
     }
     
 
-    x0 = calc_x02(sigma,xin,Matrix(A, sparse = TRUE),Matrix(Al, sparse = TRUE),indext,K1,K2,K3,X)
+    x0 = calc_x02(sigma,xin,Matrix(A, sparse = TRUE),Matrix(Al, sparse = TRUE),index,K1,K2,K3,X)
     
 
     cache_env$x0 <- x0
@@ -983,7 +983,7 @@ bctm_vcm_re3 = function(A,Al,X,K1,K2,K3,q,index){
  
 
   
-  xin = calc_x02(c(0,0), rep(2,length(indext)),Matrix(A, sparse = TRUE),Matrix(Ad, sparse = TRUE),indext,K1,K2,K3,X)
+  xin = calc_x02(c(0,0), rep(2,length(index)),Matrix(A, sparse = TRUE),Matrix(index, sparse = TRUE),index,K1,K2,K3,X)
   
 
 
@@ -1007,7 +1007,7 @@ bctm_vcm_re3 = function(A,Al,X,K1,K2,K3,q,index){
   
 
   xis_c2 = function(index,max){
-    if(index %in% which(indext == FALSE)){
+    if(index %in% which(index == FALSE)){
       return(seq(max[index]-2.5*sqrt(sigma_ini[index]),max[index]+2.5*sqrt(sigma_ini[index]),length = 31))
     }else{
       return(seq(max[index]-2.5*sqrt(sigma_ini[index]),max[index]+2.5*sqrt(sigma_ini[index]),length = 31))
@@ -1027,7 +1027,7 @@ bctm_vcm_re3 = function(A,Al,X,K1,K2,K3,q,index){
     pila = vector()
     for(j in 1:length(xis)){
       mul = mu[-index] + H[-index,index]*(1/H[index,index])*(xis[j] -mu[index])
-      pila[j] = (((calc_ljoint(A,append(mul,xis[j],index-1),(sigmanovo),Ad,K1,K2,K3))))
+      pila[j] = (((calc_ljoint(A,append(mul,xis[j],index-1),(sigmanovo),index,K1,K2,K3))))
     }
     return(list(pila = pila,xis = xis))
   }
@@ -1053,7 +1053,7 @@ bctm_vcm_re3 = function(A,Al,X,K1,K2,K3,q,index){
   
   system.time({post_x2 =  lapply(lista, function(alpha_) {
    
-    mode_ = calc_x02(alpha_,xin,Matrix(A, sparse = TRUE),Matrix(Al, sparse = TRUE),indext,K1,K2,K3,X)
+    mode_ = calc_x02(alpha_,xin,Matrix(A, sparse = TRUE),Matrix(Al, sparse = TRUE),index,K1,K2,K3,X)
     H1 <- calc_neg_hess_ff422(mode_, alpha_, Matrix(A,sparse = TRUE), Matrix(Al,sparse = TRUE),
                               K1,K2,K3,X,index)
     chol_H_ = chol(H1)
@@ -1061,7 +1061,7 @@ bctm_vcm_re3 = function(A,Al,X,K1,K2,K3,q,index){
     ta = lapply(seq(1:ncol(A)), function (ii){
       Append(matrix(kronecker.prod(xis_c2(ii,maximos) -mode_[ii],H[-ii,ii]*(1/H[ii,ii])),ncol = 31,nrow = ncol(A) - 1) + mode_[-ii]
              ,xis_c2(ii,maximos),after = ii - 1,rows = TRUE)})
-    pila = apply_to_list_parallel(ta,A,alpha_,Al,K1,K2,K3,X,indext)
+    pila = apply_to_list_parallel(ta,A,alpha_,Al,K1,K2,K3,X,index)
     posti = lapply(seq(1:ncol(A)),normal,pila = pila)
      return(list(
       sigma = points_t,

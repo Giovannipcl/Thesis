@@ -1,10 +1,10 @@
 ################################3
 ### Loading the packages
+library(tidyverse)
 library(dplyr)
 library(Matrix)
 library(splines)
 library(splines2)
-library(optimParallel)
 library(MASS)
 library(mgcv)
 library(scam)
@@ -131,8 +131,8 @@ index1 = sm1$g.index
 index2 = sm2$g.index
 index3 = rep(F,ncol(Xre)) # False for all random effects
 indext = c(index1,index2,index3,rep(FALSE,ncol(X)))
-
-
+length(index3)
+ncol(X)
 
 ## Fitting the model ##################################################
 ##################################################
