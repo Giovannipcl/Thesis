@@ -1,0 +1,15 @@
+# Applications from Giovanni Pastori Piccirilli's Thesis named 
+
+This repository contains the codes for four applications presented in the thesis "".
+
+## Repository Structure
+
+The repository is organized as follows:
+
+/App5.2       # Framingham heart study
+/App5.3        # Sleep deprivation study
+/App6.1        # Modeling the mortality rate from bronchial and lung cancer in Brazil
+/App6.2        # Analysis of vehicle theft incident in the city of São Paulo
+
+Each folder contains source code, data, and scripts needed to reproduce the results presented in the thesis.
+
