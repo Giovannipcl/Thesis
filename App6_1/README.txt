@@ -72,7 +72,7 @@ install.packages("ggplot2")
 ###############################
 
 
-To fit the model from 6.2 you just run the `Fitting.R` script. 
+To fit the model from 6.1 you just run the `Fitting.R` script. 
 All necessary functions will be loaded from the script.
 
 
