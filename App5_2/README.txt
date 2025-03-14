@@ -1,11 +1,5 @@
 #############################
-Instructions for Reproducing Application 5.1 from the "An efficient estimation method to longitudinal data using Bayesian Conditional Transformation Models"
-
-Giovanni Pastori Piccirilli; e-mail: giovannipcl@usp.br
-Márcia D'Elia Branco
-Jorge L. Bazán
-
-Biometrical Journal
+Instructions for Reproducing Application 5.2 
 
 ###################################
 
