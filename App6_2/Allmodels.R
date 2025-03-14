@@ -43,7 +43,7 @@ nsigmas = length(sigmas)
 system.time({correções4 = mclapply(1:nsigmas, function(i) teste = optim(rep(0,length(index)),arg_min22, gr = gradiente_f,
                                                                       H = solve(calc_neg_hess_ff4(means[,i],sigmas[i],A = A, Al = Al, K1 = K1, index = index,X = X)),  A = A,
                                                                       mu_ini = c(means[,i]),Al = Al, K_p = K(sigmas[i],K1,X),index = index,
-                                                                      method = "BFGS")$par,mc.cores = 6)})
+                                                                      method = "BFGS")$par,mc.cores = 1)})
 
 correções4 <- do.call(cbind, correções4)
 mu = means + correções4
@@ -67,7 +67,7 @@ sigma_post_old =
   ) %>% 
   sqrt
 
-beta_post = mclapply(1:dim(A)[2],function(i) MH(i, mu_post = mu_post, mu = mu, sigmas_beta = sigmas_beta, post_alpha = post_alpha, weights = weights),mc.cores = 6)
+beta_post = mclapply(1:dim(A)[2],function(i) MH(i, mu_post = mu_post, mu = mu, sigmas_beta = sigmas_beta, post_alpha = post_alpha, weights = weights),mc.cores = 1)
 return(beta_post)
 }
 

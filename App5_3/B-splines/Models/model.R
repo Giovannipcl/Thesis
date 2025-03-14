@@ -69,7 +69,7 @@ sigma_post_old =
   ) %>% 
   sqrt
 
-beta_post = mclapply(1:dim(A)[2],function(i) MH(i, mu_post = mu_post, mu = mu, sigmas_beta = sigmas_beta, post_alpha = post_alpha, weights = weights),mc.cores = 6)
+beta_post = mclapply(1:dim(A)[2],function(i) MH(i, mu_post = mu_post, mu = mu, sigmas_beta = sigmas_beta, post_alpha = post_alpha, weights = weights),mc.cores = 1)
 
 return(list(beta=beta_post, mu = mu, means = means, pontos2 = pontos2,post_alpha = post_alpha,weights = weights))
 }

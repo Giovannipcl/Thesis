@@ -479,7 +479,7 @@ dim(A)
 
 for(j in 1:dim(A)[1]){
   print(j)
-  pit_ind_1 = (mclapply(1:(dim(pontos2)[1]), function(i) pit3(i,j, weights),mc.cores = 6))
+  pit_ind_1 = (mclapply(1:(dim(pontos2)[1]), function(i) pit3(i,j, weights),mc.cores = 1))
   CPO_values <- sapply(pit_ind_1, function(x) x$CPO)
   PIT_values <- sapply(pit_ind_1, function(x) x$PIT)
   

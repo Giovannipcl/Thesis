@@ -274,7 +274,7 @@ MH = function(index){
 
 
 
-Beta = mclapply(seq(1,length(mu_ini),1),MH,mc.cores = 6)
+Beta = mclapply(seq(1,length(mu_ini),1),MH,mc.cores = 1)
 Beta = matrix(unlist(Beta),ncol = length(mu_ini),nrow = length(Beta[[1]]))
 dim(A)
 

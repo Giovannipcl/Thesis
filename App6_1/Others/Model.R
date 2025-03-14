@@ -278,7 +278,7 @@ bctm = function(A,Al,X,K1,K2,K3,q,index){
       Append(matrix(kronecker.prod(xis_c2(ii,maximos) -mode_[ii],H[-ii,ii]*(1/H[ii,ii])),ncol = 31,nrow = ncol(A) - 1) + mode_[-ii]
              ,xis_c2(ii,maximos),after = ii - 1,rows = TRUE)})
     pila = apply_to_list_parallel(ta,A,alpha_,Al,K1,K2,K3,X,indext)
-    posti = mclapply(seq(1:ncol(A)),normal,pila = pila,mc.cores = 6)
+    posti = mclapply(seq(1:ncol(A)),normal,pila = pila,mc.cores = 1)
     return(list(
       sigma = points_t,
       maximos = maximos,

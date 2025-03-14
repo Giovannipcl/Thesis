@@ -54,7 +54,7 @@ The book "Rcpp for everyone" helps you to install in your OS (https://teuder.git
 install.packages("dplyr")
 install.packages("splines2")
 install.packages("optimParallel")    #Just for MacOS
-install.packages("parallel")         #Just for MacOS
+install.packages("parallel")         
 install.packages("MASS")
 install.packages("pak")
 pak::pak("tidyverse/purrr")
