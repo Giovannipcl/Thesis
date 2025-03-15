@@ -176,7 +176,7 @@ ggplot(newdat, aes(x = seq_along(predict), y = predict, color = quantile)) +
              size = 0.75) +
   #geom_line(aes(x = Days, y = Reaction), data = data, color = "black", alpha = 0.3) +
   facet_wrap(~ month, nrow = 3) +
-  ylab("Average reaction time (ms)") +
+  ylab("Vehicle Theft Count") +
   labs(colour = "Estimated conditional quantiles") +
   colorspace::scale_color_discrete_diverging("Blue-Red2") +
   theme(panel.grid.major = element_line(colour = "lightgrey", size = 0.3,
@@ -274,7 +274,7 @@ ggplot(newdat, aes(x = seq_along(predict), y = predict, color = quantile)) +
              size = 0.75) +
   #geom_line(aes(x = Days, y = Reaction), data = data, color = "black", alpha = 0.3) +
   facet_wrap(~ month, nrow = 3) +
-  ylab("Average reaction time (ms)") +
+  ylab("Vehicle Theft Count") +
   labs(colour = "Estimated conditional quantiles") +
   colorspace::scale_color_discrete_diverging("Blue-Red2") +
   theme(panel.grid.major = element_line(colour = "lightgrey", size = 0.3,
@@ -324,7 +324,7 @@ ggplot(newdata_prev, aes(x = i, y = predict, color = quantile)) +
             size = 0.75) +
   #geom_line(aes(x = Days, y = Reaction), data = data, color = "black", alpha = 0.3) +
   #facet_wrap(~ month, nrow = 3) +
-  ylab("Average reaction time (ms)") +
+  ylab("Vehicle Theft Count") +
   labs(colour = "Estimated conditional quantiles") +
   colorspace::scale_color_discrete_diverging("Blue-Red2") +
   theme(panel.grid.major = element_line(colour = "lightgrey", size = 0.3,

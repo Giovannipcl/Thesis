@@ -17,13 +17,17 @@ data("sleepstudy")
 sleepstudy$Subject
 ####################################
 ##### Loading the functions and .cpp files
-dir <- dirname(rstudioapi::getActiveDocumentContext()$path) 
-setwd(dir)
-source("func_auxiliar.R")
+dir <- dirname(rstudioapi::getActiveDocumentContext()$path)
+dir_models <- file.path(dir, "Models")
+setwd(dir_models)
+source("funcs_aux.R")
 source("model.R")
-sourceCpp("arg_min_Armad.cpp")
-sourceCpp("gradiente_Armad.cpp")
-sourceCpp("funcs3.cpp")
+
+dir_cpp <- file.path(dir, "cpp")
+setwd(dir_cpp)
+sourceCpp("arg_min.cpp")
+sourceCpp("gradiente.cpp")
+sourceCpp("funcs.cpp")
 sourceCpp("cpo.cpp")
 
 ###################################################
