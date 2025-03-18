@@ -6,7 +6,7 @@ Instructions for Reproducing Application 5.2
 The repository contains two distinct folders:
 
   - macOS (If your machine runs macOS, we suggest using this folder. If you are using a Linux distribution, you can try it, but some Linux versions may require additional adjustments. In that case, we recommend using the Other folder.)
-  - Other (For Windows and Linux distributions.)
+  - Other (For Windows, macOS or Linux distributions.)
 
 #############################################
 #### 1. Files
