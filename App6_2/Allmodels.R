@@ -30,7 +30,7 @@ pontos_novos = exp(pontos_x)
 
 weights = diff(pontos_novos)
 weights = c(weights,weights[length(weights)])
-
+weights = result$weights
 post_alpha =exp(unl)/sum(exp(unl)*weights)
 means = (sapply(1:length(sigmas), function(i) calc_x0(sigmas[i], xin2,A,Al,index,K1,X)))
 
@@ -68,7 +68,7 @@ sigma_post_old =
   sqrt
 
 beta_post = mclapply(1:dim(A)[2],function(i) MH(i, mu_post = mu_post, mu = mu, sigmas_beta = sigmas_beta, post_alpha = post_alpha, weights = weights),mc.cores = 1)
-return(beta_post)
+return(list(beta = beta_post, mu = mu, sigmas = sigmas, post_alpha = post_alpha, sweights = weights))
 }
 
 
@@ -137,7 +137,7 @@ sigma_post_old =
 
 beta_post = lapply(1:dim(A)[2],function(i) MH(i, mu_post = mu_post, mu = mu, sigmas_beta = sigmas_beta, post_alpha = post_alpha, weights = weights))
 beta_post <- do.call(rbind, beta_post)
-return(beta_post)
+return(list(beta = beta_post, mu = mu, sigmas = sigmas, post_alpha = post_alpha, sweights = weights))
 
 }
 

@@ -19,7 +19,7 @@ sourceCpp("gradiente.cpp")
 
 ### Transformacao em y
 #### Centrar e na centrar da a mesma coisa. Com ou sem intercepto tmb
-head(df)
+tail(df)
 min(df$case_count)
 df = as.data.frame(df)
 df_backup = df
@@ -64,7 +64,7 @@ dim(K1)
 ############### Splines
 head(df)
 summary(df$dia)
-Xyear <- bernsteinPoly(df$year, degree = 5, intercept = FALSE,Boundary.knots = c(1,7),data = df)
+Xyear <- bernsteinPoly(df$year, degree = 5, intercept = FALSE,Boundary.knots = c(1,8),data = df)
 cmxYear <- colMeans(Xyear)
 Xyear <- sweep(Xyear,2,cmxYear)
 Xmes <- bernsteinPoly(df$mes, degree = 5, intercept = FALSE,Boundary.knots = c(1,12),data = df)
@@ -75,8 +75,8 @@ cmxDia <- colMeans(Xdia)
 Xdia <- sweep(Xdia,2,cmxDia)
 
 Xperiod = model.matrix(~ -1 +Period2, data = df)
-
-X_dia_period = matrix(0,dim(Xdia)[1],40)
+6*5
+X_dia_period = matrix(0,dim(Xdia)[1],30)
 for(i in 1:dim(df)[1]){
   X_dia_period[i,] = Xdia[i,]%x%Xperiod[i,]
 }
@@ -236,7 +236,7 @@ df_teste = df_backup[floor(dim(df)[1] + 1):dim(df_backup)[1],]
 
 head(df)
 summary(df$dia)
-Xyear <- bernsteinPoly(df_teste$year, degree = 5, intercept = FALSE,Boundary.knots = c(1,7))
+Xyear <- bernsteinPoly(df_teste$year, degree = 5, intercept = FALSE,Boundary.knots = c(1,8))
 #cmx <- colMeans(Xyear)
 Xyear <- sweep(Xyear,2,cmxYear)
 Xmes <- bernsteinPoly(df_teste$mes, degree = 5, intercept = FALSE,Boundary.knots = c(1,12))
@@ -251,7 +251,7 @@ ey = vector()
 
 Xperiod = model.matrix(~ -1 +Period2, data = df_teste)
 
-X_dia_period = matrix(0,dim(Xdia)[1],40)
+X_dia_period = matrix(0,dim(Xdia)[1],30)
 for(i in 1:dim(df_teste)[1]){
   X_dia_period[i,] = Xdia[i,]%x%Xperiod[i,]
 }
@@ -363,14 +363,15 @@ pred = c(pred)
 i <- 1:nrow(df_teste)
 nd <- expand.grid(quantile = factor(quantiles), i = i)
 #
-
+df_teste
+df
 nd <- cbind(nd, df_teste[nd$i,,drop = FALSE])
 nd$predict <- pred
 newdat <- nd
 head(newdat)
 head(datapred)
 head(newdat)
-newdata_prev = newdat[1:700,]
+newdata_prev = newdat[1:400,]
 ggplot(newdata_prev, aes(x = i, y = predict, color = quantile)) +
   geom_line(size = 1) +
   geom_line(aes(x = i, y = case_count), data = newdata_prev, color = "black", alpha = 0.9,
@@ -391,3 +392,33 @@ ggplot(newdata_prev, aes(x = i, y = predict, color = quantile)) +
         legend.position = "bottom",
         legend.key = element_rect(fill = "transparent", colour = "transparent")) +
   guides(colour = guide_legend(title.position = "top", title.hjust = 0.5, nrow = 1))
+
+
+# Criar uma nova coluna com informações combinadas
+newdata_prev$label <- with(newdata_prev, paste(ANO_BO, month, day_of_week, Period2, sep = " - "))
+newdata_prev[1,]
+# Adicionar índices para controle do eixo x
+newdata_prev$index <- seq_len(nrow(newdata_prev))
+
+ggplot(newdata_prev, aes(x = i, y = predict, color = quantile)) +
+  geom_line(size = 1) +
+  geom_line(aes(x = i, y = case_count), data = newdata_prev, color = "black", alpha = 0.9,
+            size = 0.75) +
+  ylab("Vehicle Theft Count") +
+  labs(colour = "Estimated conditional quantiles") +
+  colorspace::scale_color_discrete_diverging("Blue-Red2") +
+  scale_x_continuous(
+    breaks = seq(1, nrow(newdata_prev), by = 10),  # Intervalos de 30 observações
+    labels = newdata_prev$label[seq(1, nrow(newdata_prev), by = 10)]  # Rótulos correspondentes
+  ) +
+  theme(panel.grid.major = element_line(colour = "lightgrey", size = 0.3, linetype = "dotted"),
+        panel.grid.minor = element_blank(),
+        panel.background = element_blank(),
+        strip.background = element_rect(colour = "black", fill = "white"),
+        axis.line = element_line(colour = "black"),
+        axis.title = element_text(size = rel(0.9)),
+        legend.title = element_text(size = rel(0.9)),
+        legend.position = "bottom",
+        legend.key = element_rect(fill = "transparent", colour = "transparent")) +
+  guides(colour = guide_legend(title.position = "top", title.hjust = 0.5, nrow = 1))
+

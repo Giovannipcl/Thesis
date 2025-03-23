@@ -7,6 +7,7 @@ library(parallel)
 library(dplyr)
 library(ggplot2)
 ##################
+set.seed(123)
 dir <- dirname(rstudioapi::getActiveDocumentContext()$path) 
 setwd(dir)
 df = read.csv("datafinal.csv")
@@ -19,10 +20,9 @@ sourceCpp("gradiente.cpp")
 ################## MOdelo 1##############
 
 ### Transformacao em y
+#Datafinal_62 <- read.csv("~/Documents/Datafinal_62.csv")
 
-head(df)
-
-df = as.data.frame(df)
+df = as.data.frame(Datafinal_62)
 df_backup = df
 df = df[1:floor(dim(df)[1]*0.9),]
 
@@ -53,7 +53,7 @@ Dp1 = diag(10^(-6),ncol(K1),ncol(K1))
 K1 = K1 + Dp1
 
 #### fixed effects 
-
+head(df)
 X = model.matrix(~ year + mes + dia + dia*Period2, data = df)
 index2 = rep(F,dim(X)[2])
 
@@ -73,8 +73,7 @@ K2 = K1
 system.time({m1 = model1(A,Ad,indext,K1,X,n)})
 ##############################################
 
-
-beta <- do.call(rbind, m1)
+beta <- do.call(rbind, m1$beta)
 beta = t(beta)
 
 yseq = seq(1,max(df$case_count)+10,0.1)
@@ -140,7 +139,6 @@ for(j in 1:dim(X)[1]){
   
   
 }
-ey
 #datapred_model1 = as.data.frame(cbind(df,qm,qi,qs,ey))
 datapred_model1 = as.data.frame(cbind(df,Quantil,ey))
 datapred = datapred_model1
@@ -338,3 +336,49 @@ ggplot(newdata_prev, aes(x = i, y = predict, color = quantile)) +
         legend.position = "bottom",
         legend.key = element_rect(fill = "transparent", colour = "transparent")) +
   guides(colour = guide_legend(title.position = "top", title.hjust = 0.5, nrow = 1))
+
+
+############################ WAIC, DIC
+
+mu = m1$mu
+sigmas = m1$sigmas
+sigmas_beta_matrix = lapply(1:length(sigmas), function(i) vari = (chol2inv(chol(calc_neg_hess_ff4(mu[,i],sigmas[i],A = A, Al = Ad, K1 = K1,index = indext,X = X)))))
+
+
+py = vector()
+head(df)
+Tj = matrix(0,length(df$y),ncol(mu))
+Tj2 = matrix(0,length(df$y),ncol(mu))
+inte = vector()
+inte2 = vector()
+library(MASS)
+set.seed(123)
+for(i in 1:ncol(mu)){
+  print(i)
+  mu_gaus = mu[,i]
+  sigma_gaus = sigmas_beta_matrix[[i]]
+  sam = mvrnorm(1000,mu_gaus,(sigma_gaus))
+  Tj[,i] = apply((apply((sam),1,ll_exp, A = A, Al = Ad,index = indext)),1,mean)
+  Tj2[,i] = apply(apply(sam,1,ll_2,A,Ad,indext),1,mean) - apply(apply(sam,1,ll2,A,Ad,indext),1,mean)^2
+  inte[i] = mean(apply((sam),1,ll_dev, A = A, Al = Ad,index = indext))
+  inte2[i] = ll_dev(mu_gaus,A,Ad,indext)
+}
+post_alpha = m1$post_alpha
+sweights = m1$sweights
+WAIC = -2*sum(log(Tj%*%(post_alpha*sweights))) + 2*sum((Tj2%*%(post_alpha*sweights)));WAIC
+
+
+inte_int = sum(inte*post_alpha*sweights)
+#inte2 = sum(inte2*lpost2_norm*c(0,diff(sigma)))
+Beta = beta
+beta_mean = apply(Beta,2,mean)
+inte2 = ll_dev(beta_mean,A,Ad, indext)
+
+#inte2 = ll_dev(m11[[16]]$x0,A,A12,indext)
+
+
+pd = inte_int - inte2;pd
+DIC =inte2  + pd;DIC
+
+WAIC;DIC
+

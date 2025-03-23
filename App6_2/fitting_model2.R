@@ -56,7 +56,7 @@ dim(K1)
 ############### Splines
 head(df)
 summary(df$dia)
-Xyear <- bernsteinPoly(df$year, degree = 5, intercept = FALSE,Boundary.knots = c(1,7),data = df)
+Xyear <- bernsteinPoly(df$year, degree = 5, intercept = FALSE,Boundary.knots = c(1,8),data = df)
 cmxYear <- colMeans(Xyear)
 Xyear <- sweep(Xyear,2,cmxYear)
 Xmes <- bernsteinPoly(df$mes, degree = 5, intercept = FALSE,Boundary.knots = c(1,12),data = df)
@@ -106,8 +106,8 @@ K3 = K2
 system.time({m2 = model2(A,Ad,indext,K1,K2,K3,Xperiod,n)})
 
 #####################################
+beta = t(m2$beta)
 
-beta = t(m2)
 
 Quantil = matrix(0,dim(A)[1],9)
 
@@ -129,14 +129,10 @@ ey = vector()
 Ay = Ay%*%Sigma
 Ayd = Ayd%*%Sigma
 
-plot((Ay%*%gamma2[1:ncol(Ay),])[,1])
-#gamma2 = gamma_f(mu_post_old, indext)
 h1 = apply(Ay%*%gamma2[1:ncol(Ay),],1,mean)
 h1l = apply(Ayd%*%gamma2[1:ncol(Ay),],1,mean)
 
 gamma3 = apply(gamma2,1,mean)
-qqnorm(qnorm(pnorm(A%*%gamma3)))
-abline(a = 0,b = 1)  
 
 
 for(j in 1:dim(X)[1]){
@@ -176,7 +172,6 @@ for(j in 1:dim(X)[1]){
   
   
 }
-#datapred_model1 = as.data.frame(cbind(df,qm,qi,qs,ey))
 datapred_model1 = as.data.frame(cbind(df,Quantil,ey))
 datapred = datapred_model1
 head(datapred)
@@ -237,7 +232,7 @@ head(df)
 df_teste = df_backup[floor(dim(df)[1] + 1):dim(df_backup)[1],]
 
 summary(df$dia)
-Xyear <- bernsteinPoly(df_teste$year, degree = 5, intercept = FALSE,Boundary.knots = c(1,7))
+Xyear <- bernsteinPoly(df_teste$year, degree = 5, intercept = FALSE,Boundary.knots = c(1,8))
 #cmx <- colMeans(Xyear)
 Xyear <- sweep(Xyear,2,cmxYear)
 Xmes <- bernsteinPoly(df_teste$mes, degree = 5, intercept = FALSE,Boundary.knots = c(1,12))
@@ -384,3 +379,91 @@ ggplot(newdata_prev, aes(x = i, y = predict, color = quantile)) +
         legend.position = "bottom",
         legend.key = element_rect(fill = "transparent", colour = "transparent")) +
   guides(colour = guide_legend(title.position = "top", title.hjust = 0.5, nrow = 1))
+#################WAIC e DIC ################################
+
+ll_dev = function(beta, A,  Al,index){
+  gamma = gamma_f(beta,index)
+  
+  
+  res = sum(dnorm(A%*%gamma,0,1,log = TRUE)) + sum(log(Al%*%gamma))
+  return(-2*res)
+  
+}
+
+ll_exp = function(beta, A,  Al,index){
+  gamma = gamma_f(beta,index)
+  
+  
+  res = (dnorm(A%*%gamma,0,1,log = TRUE)) + (log(Al%*%gamma))
+  
+  return(exp(res))
+  
+}
+
+ll2 = function(beta, A,  Al,index){
+  gamma = gamma_f(beta,index)
+  
+  
+  res = (dnorm(A%*%gamma,0,1,log = TRUE)) + (log(Al%*%gamma))
+  
+  return(res)
+  
+}
+
+ll_2 = function(beta, A,  Al,index){
+  gamma = gamma_f(beta,index)
+  
+  
+  res = (dnorm(A%*%gamma,0,1,log = TRUE)) + (log(Al%*%gamma))
+  
+  return(res^2)
+  
+}
+
+
+sam = beta
+mu = m2$mu
+sigmas = m2$sigmas
+sigmas_beta_matrix = lapply(1:length(sigmas), function(i) vari = (chol2inv(chol(calc_neg_hess_ff4(mu[,i],sigmas[i],A = A, Al = Ad, K1 = K1,index = indext,X = X)))))
+
+sigmas_beta_matrix = lapply(1:dim(sigmas)[1], function(i) vari = (chol2inv(chol(calc_neg_hess_ff4(mu[,i],sigmas[i,],A = A, Al = Ad, K1 = K1,K2=K2,K3=K3,index = indext,X = Xperiod)))))
+
+
+py = vector()
+head(df)
+Tj = matrix(0,length(df$y),ncol(mu))
+Tj2 = matrix(0,length(df$y),ncol(mu))
+inte = vector()
+inte2 = vector()
+set.seed(1)
+means
+library(MASS)
+set.seed(123)
+for(i in 1:ncol(mu)){
+  print(i)
+  mu_gaus = mu[,i]
+  sigma_gaus = sigmas_beta_matrix[[i]]
+  sam = mvrnorm(1000,mu_gaus,(sigma_gaus))
+  Tj[,i] = apply((apply((sam),1,ll_exp, A = A, Al = Ad,index = indext)),1,mean)
+  Tj2[,i] = apply(apply(sam,1,ll_2,A,Ad,indext),1,mean) - apply(apply(sam,1,ll2,A,Ad,indext),1,mean)^2
+  inte[i] = mean(apply((sam),1,ll_dev, A = A, Al = Ad,index = indext))
+  inte2[i] = ll_dev(mu_gaus,A,Ad,indext)
+}
+post_alpha = m2$post_alpha
+sweights = m2$sweights
+WAIC = -2*sum(log(Tj%*%(post_alpha*sweights))) + 2*sum((Tj2%*%(post_alpha*sweights)));WAIC
+
+
+inte_int = sum(inte*post_alpha*sweights)
+#inte2 = sum(inte2*lpost2_norm*c(0,diff(sigma)))
+Beta = beta
+beta_mean = apply(Beta,2,mean)
+inte2 = ll_dev(beta_mean,A,Ad, indext)
+
+#inte2 = ll_dev(m11[[16]]$x0,A,A12,indext)
+
+
+pd = inte_int - inte2;pd
+DIC =inte2  + pd;DIC
+
+WAIC;DIC
