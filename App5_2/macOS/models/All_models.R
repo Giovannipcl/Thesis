@@ -407,7 +407,7 @@ bctm_vcm = function(A,Al,X,K1,K2,K3,q,index){
   
   stopCluster(cl)
   
-
+  
   
   sigmamod = d$par
   sd_sigma = d$hessian
@@ -417,15 +417,15 @@ bctm_vcm = function(A,Al,X,K1,K2,K3,q,index){
   sigma_ini = sqrt(diag(H))
   
   xis_c = function(index){
-    return(seq(mu_ini[index]-5.1*sqrt(sigma_ini[index]),mu_ini[index]+5.1*sqrt(sigma_ini[index]),length = 61))
+    return(seq(mu_ini[index]-5.1*(sigma_ini[index]),mu_ini[index]+5.1*(sigma_ini[index]),length = 61))
   }
   
 
   xis_c2 = function(index,max){
     if(index %in% which(indext == FALSE)){
-      return(seq(max[index]-2.5*sqrt(sigma_ini[index]),max[index]+2.5*sqrt(sigma_ini[index]),length = 41))
+      return(seq(max[index]-2.5*(sigma_ini[index]),max[index]+2.5*(sigma_ini[index]),length = 41))
     }else{
-      return(seq(max[index]-2.5*sqrt(sigma_ini[index]),max[index]+2.5*sqrt(sigma_ini[index]),length = 41))
+      return(seq(max[index]-2.5*(sigma_ini[index]),max[index]+2.5*(sigma_ini[index]),length = 41))
     }
   }
   
@@ -469,9 +469,9 @@ bctm_vcm = function(A,Al,X,K1,K2,K3,q,index){
     return(list(pila_marginal = pila_marginal, xis = xis))
   }
   
-  cl <- makeCluster(spec=detectCores()/2, type="FORK", outfile="")
-  system.time({posti =  parLapply(cl,seq(1:(length(index))),teste,mu = mu_ini,sigma_beta = sigma_ini,H=H,sigmanovo = c(sigmamod))})
-  #posti =  lapply(seq(1:(length(index))),teste,mu = mu_ini,sigma_beta = sigma_ini,H=H,sigmanovo = c(sigmamod))
+  #cl <- makeCluster(spec=detectCores()/2, type="FORK", outfile="")
+  #system.time({posti =  parLapply(cl,seq(1:(length(index))),teste,mu = mu_ini,sigma_beta = sigma_ini,H=H,sigmanovo = c(sigmamod))})
+  posti =  lapply(seq(1:(length(index))),teste,mu = mu_ini,sigma_beta = sigma_ini,H=H,sigmanovo = c(sigmamod))
   
   
   maximos_ind = sapply(lapply(posti,sapply,which.max),'[[',1)
@@ -480,7 +480,7 @@ bctm_vcm = function(A,Al,X,K1,K2,K3,q,index){
     maximos[j] = sapply(posti,'[[',2,simplify = FALSE)[[j]][maximos_ind[j]]
   }
   
-  stopCluster(cl)
+  #stopCluster(cl)
   
   
   nx = 6
@@ -521,8 +521,7 @@ bctm_vcm = function(A,Al,X,K1,K2,K3,q,index){
   },mc.cores = 6)
   
   return(post_x2)
-  
-  stopCluster(cl)
+
   
 }
   
@@ -742,19 +741,19 @@ bctm_vcm_re2 = function(A,Al,X,K1,K2,K3,q,index){
   xin = calc_x02(c(0,0), rep(2,length(indext)),Matrix(A, sparse = TRUE),Matrix(Ad, sparse = TRUE),indext,K1,K2,K3,X)
   
   
-  cl <- makeCluster(spec=detectCores(), type = "FORK",outfile="")
+  #cl <- makeCluster(spec=detectCores(), type = "FORK",outfile="")
   
   
-  system.time({ d = optimParallel(par = c(1,1), fn = calc_lpost32,xin = xin, method = "L-BFGS-B",
+  #system.time({ d = optimParallel(par = c(1,1), fn = calc_lpost32,xin = xin, method = "L-BFGS-B",
                                   control=list(fnscale=-1,maxit = 5000,trace = TRUE),hessian = FALSE, parallel=list(loginfo=TRUE,cl = cl))})
   
   
-  stopCluster(cl)
+  #stopCluster(cl)
   
   
   
-  #d = optim(par = c(1,1), fn = calc_lpost32,xin = xin, method = "L-BFGS-B",
-  #                                control=list(fnscale=-1,maxit = 5000,trace = TRUE),hessian = FALSE)
+  d = optim(par = c(1,1), fn = calc_lpost32,xin = xin, method = "L-BFGS-B",
+                                  control=list(fnscale=-1,maxit = 5000,trace = TRUE),hessian = FALSE)
   
   
   

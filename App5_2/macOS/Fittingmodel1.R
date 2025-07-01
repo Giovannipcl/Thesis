@@ -40,7 +40,7 @@ library(RcppArmadillo)
 library(RcppParallel)
 setwd(dir_cpp)
 sourceCpp("model1.cpp")
-
+set.seed(123)
 
 #################################################################################
 ################################
@@ -132,9 +132,9 @@ marginal = function(index,pila,maximos,sigma_ini,lista,lpost,weight){
 
 xis_c2 = function(index,max){
   if(index %in% which(indext == FALSE)){
-    return(seq(max[index]-2.5*sqrt(sigma_ini[index]),max[index]+2.5*sqrt(sigma_ini[index]),length = 41))
+    return(seq(max[index]-2.5*(sigma_ini[index]),max[index]+2.5*(sigma_ini[index]),length = 41))
   }else{
-    return(seq(max[index]-2.5*sqrt(sigma_ini[index]),max[index]+2.5*sqrt(sigma_ini[index]),length = 41))
+    return(seq(max[index]-2.5*(sigma_ini[index]),max[index]+2.5*(sigma_ini[index]),length = 41))
   }
 }
 
@@ -162,7 +162,6 @@ colr <- rev(heat.colors(10))
 plot(points_t[,1] ~ points_t[,2],
      col = colr[lpost2], pch = 20)
 
-sum(post_alpha*weight)
 pontos = points_t
 
 lpost2_norm = lpost
@@ -188,7 +187,7 @@ gamma_f = function(beta,index){
 
 
 ################################################################################################33
-############################3 WAIC e DIC ####################################################
+############################ WAIC e DIC ####################################################
 Gamma = apply(Beta,1,gamma_f,index = indext)
 
 i = 18 #(36/2) index of the mode of hyperparameter
@@ -222,7 +221,7 @@ inte_int = sum(inte*lpost2_norm*weight)
 beta_mean = apply(Beta,2,mean)
 inte2 = ll_dev(beta_mean,A,Ad, indext)
 pd = inte_int - inte2;pd
-DIC =inte2  +pd;DIC
+DIC =inte2  +2*pd;DIC
 
 ###############
 
@@ -342,7 +341,9 @@ prob_estim = function(ind,Gamma){
 }
 
 
+
 Estim = lapply(seq(1:(dim(df)[1])),prob_estim, Gamma = Gamma)
+
 
 
 qm = sapply(Estim, "[[","qm")     # Median
@@ -360,6 +361,7 @@ library("reshape2")
 library("ggplot2")
 data_long <- melt(dif_df)                                      # Reshaping data frame
 head(data_long)
+
 
 ## This plot show the distributions of the minimum, average, and maximum differences from the estimated distributions
 ggplot(data_long, aes(variable,value))+
